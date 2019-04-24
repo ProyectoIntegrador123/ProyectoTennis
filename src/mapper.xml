@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="tenis">
+	
+	<!-- 
+		- Las clases de entidades se mapean en el myibatis 
+		
+		- Se relaciona las columnas de la tabla con los
+		  atributos del bean
+	-->
+	<!-- 
+	
+		parameterType : parámetro del método que va completar el SQL
+	 -->
+	 
+	<resultMap  id="mapConcurso" type="concursoBeanIbatis">
+		<id property="idConcurso" column="idConcurso"/>
+		<result property="nombre" column="nombre"/>
+		<result property="fechaInicio" column="fechaInicio"/>
+		<result property="fechaFin" column="fechaFin"/>
+		<result property="estado" column="estado"/>
+	</resultMap>
+	
+	<resultMap id="mapDeporte" type="deporteBeanIbatis" >
+		<id property="idDeporte" column="idDeporte"/><!-- PK -->
+		<result property="nombre" column="nombre"/>
+	</resultMap>
+	
+	<resultMap id="mapModalidad" type="modalidadBeanIbatis" >
+		<id property="idModalidad" column="idModalidad"/><!-- PK -->
+		<result property="nombre" column="nombre"/>		<!-- Columna -->
+		<result property="edadMinima" column="edadMinima"/>
+		<result property="edadMaxima" column="edadMaxima"/>
+		<result property="numHombres" column="numHombres"/>
+		<result property="numMujeres" column="numMujeres"/>
+		<association property="deporte" column="idDeporte" 
+								select="SQL_buscaDeporte"/><!-- FK -->
+	</resultMap>
+	
+	<!-- Querys para el mantenimiento de modalida -->
+	<!-- Cuando se trata de dos tablas se debe realizar un query
+		 adicional que llene por separado los datos de la tabla foránea
+	 -->
+	<select id="SQL_listaModalidad" resultMap="mapModalidad" parameterType="java.lang.String">
+		select * from modalidad	where nombre like #{filtro} 
+	</select>
+	<select id="SQL_buscaDeporte" parameterType="int" resultMap="mapDeporte">
+		select * from deporte where idDeporte = #{id}
+	</select>
+	<!-- Para el combobox de deporte -->
+	<select id="SQL_listaDeporte" resultMap="mapDeporte">
+		select * from deporte
+	</select>
+	
+	<insert id="SQL_insertaModalidad" parameterType="modalidadBeanIbatis">
+			insert into modalidad 
+			values(null,#{nombre},#{edadMaxima},#{edadMinima},
+			#{numHombres},#{numMujeres},#{deporte.idDeporte})
+	</insert>
+	
+	<update id="SQL_actualizaModalidad" parameterType="modalidadBeanIbatis">
+			update modalidad set nombre = #{nombre},
+			numHombres = #{numHombres},numMujeres = #{numMujeres},
+			edadMaxima = #{edadMaxima},edadMinima = #{edadMinima},
+			idDeporte = #{deporte.idDeporte}
+			where idModalidad = #{idModalidad}
+	</update>
+	
+	<delete id="SQL_eliminaModalidad" parameterType="int">
+			delete from modalidad where idModalidad = #{idModalidad}
+	</delete>
+	
+	
+	
+	<!-- Querys para el mantenimiento de concurso -->
+	<select id="SQL_listaConcurso" resultMap="mapConcurso" parameterType="java.lang.String">
+			select * from concurso where nombre like #{filtro} 
+	</select>
+	
+	<insert id="SQL_insertaConcurso" parameterType="concursoBeanIbatis">
+		insert into concurso 
+		values(null,#{nombre},#{fechaInicio},#{fechaFin},#{estado})
+	</insert>
+	
+	<update id="SQL_actualizaConcurso" parameterType="concursoBeanIbatis">
+		update concurso set nombre = #{nombre},fechaInicio = #{fechaInicio},
+		fechaFin = #{fechaFin},estado = #{estado}
+		where idconcurso =  #{idConcurso}
+	</update>
+	
+	<delete id="SQL_eliminaConcurso" parameterType="int">
+		delete from concurso where idconcurso =  #{id}
+	</delete>
+	
+</mapper>
+
+
+
+
+
+
+
